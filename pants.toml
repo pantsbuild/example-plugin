@@ -1,0 +1,8 @@
+# Copyright 2020 Pants project contributors.
+# Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+[GLOBAL]
+pants_version = "2.0.0.dev0"
+v1 = false
+backend_packages = []
+backend_packages2 = []
