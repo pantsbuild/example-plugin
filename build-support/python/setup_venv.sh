@@ -13,5 +13,5 @@ PIP="${VIRTUALENV}/bin/pip"
 "${PYTHON_BIN}" -m venv "${VIRTUALENV}"
 "${PIP}" install pip --upgrade
 "${PIP}" install -r <(
-  ./pants --no-pantsd dependencies --type=3rdparty --transitive ::
+  ./pants --no-pantsd dependencies --type=3rdparty ::
 )
