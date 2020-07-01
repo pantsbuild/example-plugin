@@ -5,4 +5,32 @@
 pants_version = "2.0.0.dev0"
 v1 = false
 backend_packages = []
-backend_packages2 = []
+
+pythonpath = ["pants-plugins"]
+backend_packages2 = [
+  # We activate several Python backends so that we can use Pants to format and test our plugin,
+  # even though our src code won't use Python. These backends are not necessary for our plugin to
+  # work.
+  "pants.backend.python",
+  "pants.backend.python.lint.black",
+  "pants.backend.python.lint.docformatter",
+  "pants.backend.python.lint.flake8",
+  "pants.backend.python.lint.isort",
+  # This will activate `pants-plugins/bash/register.py`.
+  "bash",
+]
+
+[source]
+root_patterns = [
+  "pants-plugins",
+]
+
+[python-setup]
+# Plugins may be written in Python 3.6, 3.7, or 3.8.
+interpreter_constraints = ["==3.8.*"]
+
+[flake8]
+config = "build-support/python/flake8.ini"
+
+[isort]
+config = ["pants-plugins/.isort.cfg"]
