@@ -22,4 +22,4 @@ install:
 
 script:
   - ./pants --changed-since=origin/main lint
-  - ./pants --changed-since=origin/main --changed-dependees=transitive test
+  - ./pants --changed-since=origin/main --changed-include-dependees=transitive test
