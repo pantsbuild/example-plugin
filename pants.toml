@@ -4,6 +4,8 @@
 [GLOBAL]
 pants_version = "2.0.0.dev1"
 
+# This allows us to activate our plugin from first-party sources, rather than using a published
+# plugin from PyPI.
 pythonpath = ["pants-plugins"]
 backend_packages = [
   # We activate several Python backends so that we can use Pants to format and test our plugin,
@@ -14,8 +16,9 @@ backend_packages = [
   "pants.backend.python.lint.docformatter",
   "pants.backend.python.lint.flake8",
   "pants.backend.python.lint.isort",
-  # This will activate `pants-plugins/bash/register.py`.
-  "bash",
+  # This will activate `pants-plugins/examples/bash/register.py` so that we can use its
+  # functionality in our repository.
+  "examples.bash",
 ]
 
 [source]
