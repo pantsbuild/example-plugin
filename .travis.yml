@@ -22,5 +22,4 @@ install:
 
 script:
   - ./pants --changed-since=origin/main lint
-  # TODO: enable this once we fix --changed-dependees
-  # - ./pants --changed-since=origin/main --changed-include-dependees=transitive test
+  - ./pants --changed-since=origin/main --changed-dependees=transitive test

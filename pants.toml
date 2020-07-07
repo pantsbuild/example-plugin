@@ -2,12 +2,10 @@
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 [GLOBAL]
-pants_version = "2.0.0.dev0"
-v1 = false
-backend_packages = []
+pants_version = "2.0.0.dev1"
 
 pythonpath = ["pants-plugins"]
-backend_packages2 = [
+backend_packages = [
   # We activate several Python backends so that we can use Pants to format and test our plugin,
   # even though our src code won't use Python. These backends are not necessary for our plugin to
   # work.
@@ -26,8 +24,10 @@ root_patterns = [
 ]
 
 [python-setup]
-# Plugins may be written in Python 3.6, 3.7, or 3.8.
-interpreter_constraints = ["==3.8.*"]
+# Plugins may be written in Python 3.6, 3.7, or 3.8. If you use 3.7 or 3.8, you should update the
+# `./pants` script's `determine_default_python_exe` function to make sure that Pants runs with that
+# Python version.
+interpreter_constraints = ["==3.6.*"]
 
 [flake8]
 config = "build-support/python/flake8.ini"
