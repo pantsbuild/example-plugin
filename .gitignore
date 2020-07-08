@@ -7,5 +7,9 @@
 /.pids/
 /.pants.workdir.file_lock*
 
+# Python files used for writing the plugin.
+/build-support/python/.venv/
+__pycache__/
+
 # Editors
 .idea/
