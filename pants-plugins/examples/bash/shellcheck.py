@@ -1,7 +1,7 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-# Refer to https://pants.readme.io/v2.0/docs/plugins-new-linter.
+# Refer to https://www.pantsbuild.org/v2.0/docs/plugins-lint-goal.
 
 from dataclasses import dataclass
 
