@@ -1,9 +1,10 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
+# Refer to https://pants.readme.io/v2.0/docs/plugins-new-linter.
+
 from dataclasses import dataclass
 
-from examples.bash.target_types import BashSources
 from pants.core.goals.lint import LintRequest, LintResult, LintResults
 from pants.core.util_rules.determine_source_files import (
     AllSourceFilesRequest,
@@ -25,10 +26,17 @@ from pants.engine.platform import Platform
 from pants.engine.process import FallibleProcessResult, Process
 from pants.engine.rules import SubsystemRule, rule
 from pants.engine.selectors import Get, MultiGet
-from pants.engine.target import FieldSetWithOrigin
+from pants.engine.target import (
+    Dependencies,
+    DependenciesRequest,
+    FieldSetWithOrigin,
+    Targets,
+)
 from pants.engine.unions import UnionRule
 from pants.option.custom_types import file_option, shell_str
 from pants.util.strutil import pluralize
+
+from examples.bash.target_types import BashSources
 
 
 class Shellcheck(ExternalTool):
@@ -83,6 +91,9 @@ class ShellcheckFieldSet(FieldSetWithOrigin):
     required_fields = (BashSources,)
 
     sources: BashSources
+    # The `Dependencies` field is optional. If the target type doesn't have it registered, then
+    # we'll use a default value.
+    dependencies: Dependencies
 
 
 class ShellcheckRequest(LintRequest):
@@ -96,15 +107,36 @@ async def run_shellcheck(
     if shellcheck.options.skip:
         return LintResults()
 
+    # Shellcheck looks at direct dependencies to make sure that every symbol is defined, so we must
+    # include those in the run.
+    all_dependencies = await MultiGet(
+        Get(Targets, DependenciesRequest(field_set.dependencies))
+        for field_set in request.field_sets
+    )
+    # Now that we have all dependencies, we flatten the results into a single list of `BashSources`
+    # fields and we filter out all targets without a `BashSources` field registered because those
+    # dependencies are irrelevant to Shellcheck.
+    dependencies_sources_fields = [
+        tgt[BashSources]
+        for dependencies in all_dependencies
+        for tgt in dependencies
+        if tgt.has_field(BashSources)
+    ]
+
+    sources_request = Get(
+        SourceFiles,
+        AllSourceFilesRequest(
+            [
+                *(field_set.sources for field_set in request.field_sets),
+                *dependencies_sources_fields,
+            ]
+        ),
+    )
+
     download_shellcheck_request = Get(
         DownloadedExternalTool,
         ExternalToolRequest,
         shellcheck.get_request(Platform.current),
-    )
-
-    sources_request = Get(
-        SourceFiles,
-        AllSourceFilesRequest(field_set.sources for field_set in request.field_sets),
     )
 
     # If the user specified `--shellcheck-config`, we must search for the file they specified with
@@ -118,8 +150,8 @@ async def run_shellcheck(
         ),
     )
 
-    downloaded_shellcheck, sources, config_snapshot = await MultiGet(
-        download_shellcheck_request, sources_request, config_snapshot_request
+    sources, downloaded_shellcheck, config_snapshot = await MultiGet(
+        sources_request, download_shellcheck_request, config_snapshot_request
     )
 
     # The Process needs one single `Digest`, so we merge everything together.
@@ -127,8 +159,8 @@ async def run_shellcheck(
         Digest,
         MergeDigests(
             (
-                downloaded_shellcheck.digest,
                 sources.snapshot.digest,
+                downloaded_shellcheck.digest,
                 config_snapshot.digest,
             )
         ),
