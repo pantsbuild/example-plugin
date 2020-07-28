@@ -15,16 +15,10 @@ from pants.core.util_rules.external_tool import (
     ExternalTool,
     ExternalToolRequest,
 )
-from pants.engine.fs import (
-    Digest,
-    GlobMatchErrorBehavior,
-    MergeDigests,
-    PathGlobs,
-    Snapshot,
-)
+from pants.engine.fs import Digest, GlobMatchErrorBehavior, MergeDigests, PathGlobs
 from pants.engine.platform import Platform
 from pants.engine.process import FallibleProcessResult, Process
-from pants.engine.rules import SubsystemRule, rule
+from pants.engine.rules import collect_rules, rule
 from pants.engine.selectors import Get, MultiGet
 from pants.engine.target import (
     Dependencies,
@@ -141,8 +135,8 @@ async def run_shellcheck(
 
     # If the user specified `--shellcheck-config`, we must search for the file they specified with
     # `PathGlobs` to include it in the `input_digest`. We error if the file cannot be found.
-    config_snapshot_request = Get(
-        Snapshot,
+    config_digest_request = Get(
+        Digest,
         PathGlobs(
             globs=[shellcheck.options.config] if shellcheck.options.config else [],
             glob_match_error_behavior=GlobMatchErrorBehavior.error,
@@ -150,19 +144,15 @@ async def run_shellcheck(
         ),
     )
 
-    sources, downloaded_shellcheck, config_snapshot = await MultiGet(
-        sources_request, download_shellcheck_request, config_snapshot_request
+    sources, downloaded_shellcheck, config_digest = await MultiGet(
+        sources_request, download_shellcheck_request, config_digest_request
     )
 
     # The Process needs one single `Digest`, so we merge everything together.
     input_digest = await Get(
         Digest,
         MergeDigests(
-            (
-                sources.snapshot.digest,
-                downloaded_shellcheck.digest,
-                config_snapshot.digest,
-            )
+            (sources.snapshot.digest, downloaded_shellcheck.digest, config_digest)
         ),
     )
 
@@ -185,8 +175,4 @@ async def run_shellcheck(
 
 
 def rules():
-    return [
-        run_shellcheck,
-        SubsystemRule(Shellcheck),
-        UnionRule(LintRequest, ShellcheckRequest),
-    ]
+    return [*collect_rules(), UnionRule(LintRequest, ShellcheckRequest)]
