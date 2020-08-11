@@ -18,5 +18,5 @@ install:
   - ./pants --version  # This will bootstrap Pants
 
 script:
-  - ./pants lint ::
-  - ./pants test ::
+  - ./pants lint '::'
+  - ./pants test '::'
