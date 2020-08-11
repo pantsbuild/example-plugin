@@ -6,10 +6,7 @@
 from dataclasses import dataclass
 
 from pants.core.goals.lint import LintRequest, LintResult, LintResults
-from pants.core.util_rules.determine_source_files import (
-    AllSourceFilesRequest,
-    SourceFiles,
-)
+from pants.core.util_rules.determine_source_files import SourceFiles, SourceFilesRequest
 from pants.core.util_rules.external_tool import (
     DownloadedExternalTool,
     ExternalTool,
@@ -18,14 +15,8 @@ from pants.core.util_rules.external_tool import (
 from pants.engine.fs import Digest, GlobMatchErrorBehavior, MergeDigests, PathGlobs
 from pants.engine.platform import Platform
 from pants.engine.process import FallibleProcessResult, Process
-from pants.engine.rules import collect_rules, rule
-from pants.engine.selectors import Get, MultiGet
-from pants.engine.target import (
-    Dependencies,
-    DependenciesRequest,
-    FieldSetWithOrigin,
-    Targets,
-)
+from pants.engine.rules import Get, MultiGet, collect_rules, rule
+from pants.engine.target import Dependencies, DependenciesRequest, FieldSet, Targets
 from pants.engine.unions import UnionRule
 from pants.option.custom_types import file_option, shell_str
 from pants.util.strutil import pluralize
@@ -76,12 +67,12 @@ class Shellcheck(ExternalTool):
             f"shellcheck-v{self.options.version}.{plat_str}.x86_64.tar.xz"
         )
 
-    def generate_exe(self, plat: Platform) -> str:
-        return f"shellcheck-v{self.options.version}/shellcheck"
+    def generate_exe(self, _: Platform) -> str:
+        return f"./shellcheck-v{self.options.version}/shellcheck"
 
 
 @dataclass(frozen=True)
-class ShellcheckFieldSet(FieldSetWithOrigin):
+class ShellcheckFieldSet(FieldSet):
     required_fields = (BashSources,)
 
     sources: BashSources
@@ -119,7 +110,7 @@ async def run_shellcheck(
 
     sources_request = Get(
         SourceFiles,
-        AllSourceFilesRequest(
+        SourceFilesRequest(
             [
                 *(field_set.sources for field_set in request.field_sets),
                 *dependencies_sources_fields,
