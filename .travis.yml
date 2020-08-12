@@ -3,14 +3,10 @@
 
 # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to set up your CI with Pants.
 
-env:
-  global:
-    - PANTS_CONFIG_FILES=pants.ci.toml
-
 os: linux
 dist: bionic
 language: python
-python: 3.8
+python: 3.6
 
 cache:
   directories:
@@ -22,5 +18,5 @@ install:
   - ./pants --version  # This will bootstrap Pants
 
 script:
-  - ./pants --changed-since=origin/main lint
-  - ./pants --changed-since=origin/main --changed-dependees=transitive test
+  - ./pants lint '::'
+  - ./pants test '::'
