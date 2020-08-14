@@ -6,12 +6,12 @@
 from dataclasses import dataclass
 
 from pants.core.goals.lint import LintRequest, LintResult, LintResults
-from pants.core.util_rules.determine_source_files import SourceFiles, SourceFilesRequest
 from pants.core.util_rules.external_tool import (
     DownloadedExternalTool,
     ExternalTool,
     ExternalToolRequest,
 )
+from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.fs import Digest, GlobMatchErrorBehavior, MergeDigests, PathGlobs
 from pants.engine.platform import Platform
 from pants.engine.process import FallibleProcessResult, Process
