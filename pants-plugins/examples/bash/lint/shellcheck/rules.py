@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from pants.core.goals.lint import LintRequest, LintResult, LintResults
 from pants.core.util_rules.external_tool import (
     DownloadedExternalTool,
-    ExternalTool,
     ExternalToolRequest,
 )
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
@@ -18,57 +17,11 @@ from pants.engine.process import FallibleProcessResult, Process
 from pants.engine.rules import Get, MultiGet, collect_rules, rule
 from pants.engine.target import Dependencies, DependenciesRequest, FieldSet, Targets
 from pants.engine.unions import UnionRule
-from pants.option.custom_types import file_option, shell_str
+from pants.util.logging import LogLevel
 from pants.util.strutil import pluralize
 
+from examples.bash.lint.shellcheck.subsystem import Shellcheck
 from examples.bash.target_types import BashSources
-
-
-class Shellcheck(ExternalTool):
-    """A linter for shell scripts."""
-
-    options_scope = "shellcheck"
-    default_version = "0.7.1"
-    default_known_versions = [
-        "0.7.1|darwin|b080c3b659f7286e27004aa33759664d91e15ef2498ac709a452445d47e3ac23|1348272",
-        "0.7.1|linux|64f17152d96d7ec261ad3086ed42d18232fcb65148b44571b564d688269d36c8|1443836",
-    ]
-
-    @classmethod
-    def register_options(cls, register):
-        super().register_options(register)
-        register(
-            "--skip",
-            type=bool,
-            default=False,
-            help="Don't use Shellcheck when running `./pants lint`.",
-        )
-        register(
-            "--args",
-            type=list,
-            member_type=shell_str,
-            help=(
-                "Arguments to pass directly to Shellcheck, e.g. `--shellcheck-args='-e SC20529'`.'"
-            ),
-        )
-        register(
-            "--config",
-            type=list,
-            member_type=file_option,
-            advanced=True,
-            help="Path to `.shellcheckrc`. This must be relative to the build root.",
-        )
-
-    def generate_url(self, plat: Platform) -> str:
-        plat_str = "linux" if plat == Platform.linux else "darwin"
-        "https://github.com/koalaman/shellcheck/releases/download/v0.7.1/shellcheck-v0.7.1.darwin.x86_64.tar.xz"
-        return (
-            f"https://github.com/koalaman/shellcheck/releases/download/v{self.options.version}/"
-            f"shellcheck-v{self.options.version}.{plat_str}.x86_64.tar.xz"
-        )
-
-    def generate_exe(self, _: Platform) -> str:
-        return f"./shellcheck-v{self.options.version}/shellcheck"
 
 
 @dataclass(frozen=True)
@@ -85,7 +38,7 @@ class ShellcheckRequest(LintRequest):
     field_set_type = ShellcheckFieldSet
 
 
-@rule
+@rule(desc="Lint with Shellcheck")
 async def run_shellcheck(
     request: ShellcheckRequest, shellcheck: Shellcheck
 ) -> LintResults:
@@ -156,7 +109,8 @@ async def run_shellcheck(
                 *sources.snapshot.files,
             ],
             input_digest=input_digest,
-            description=f"Run Shellcheck on {pluralize(len(request.field_sets), 'target')}.",
+            description=f"Run Shellcheck on {pluralize(len(request.field_sets), 'file')}.",
+            level=LogLevel.DEBUG,
         ),
     )
     result = LintResult.from_fallible_process_result(
