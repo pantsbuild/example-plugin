@@ -19,6 +19,7 @@ backend_packages = [
   # This will activate `pants-plugins/examples/bash/register.py` so that we can use its
   # functionality in our repository.
   "examples.bash",
+  "examples.bash.lint.shellcheck",
 ]
 
 [source]
