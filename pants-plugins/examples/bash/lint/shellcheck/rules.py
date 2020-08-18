@@ -38,7 +38,7 @@ class ShellcheckRequest(LintRequest):
     field_set_type = ShellcheckFieldSet
 
 
-@rule(desc="Lint with Shellcheck")
+@rule(desc="Lint with Shellcheck", level=LogLevel.DEBUG)
 async def run_shellcheck(
     request: ShellcheckRequest, shellcheck: Shellcheck
 ) -> LintResults:

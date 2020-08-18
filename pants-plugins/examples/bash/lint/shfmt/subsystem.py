@@ -8,14 +8,14 @@ from pants.engine.platform import Platform
 from pants.option.custom_types import file_option, shell_str
 
 
-class Shellcheck(ExternalTool):
-    """A linter for shell scripts."""
+class Shfmt(ExternalTool):
+    """An autoformatter for shell scripts (https://github.com/mvdan/sh)."""
 
-    options_scope = "shellcheck"
-    default_version = "v0.7.1"
+    options_scope = "shfmt"
+    default_version = "v3.1.2"
     default_known_versions = [
-        "v0.7.1|darwin|b080c3b659f7286e27004aa33759664d91e15ef2498ac709a452445d47e3ac23|1348272",
-        "v0.7.1|linux|64f17152d96d7ec261ad3086ed42d18232fcb65148b44571b564d688269d36c8|1443836",
+        "v3.1.2|darwin|284674897e4f708a8b2e4b549af60ac01da648b9581dc7510c586ce41096edaa|3277184",
+        "v3.1.2|linux|c5794c1ac081f0028d60317454fe388068ab5af7740a83e393515170a7157dce|3043328",
     ]
 
     @classmethod
@@ -25,30 +25,29 @@ class Shellcheck(ExternalTool):
             "--skip",
             type=bool,
             default=False,
-            help="Don't use Shellcheck when running `./pants lint`.",
+            help="Don't use shfmt when running `./pants fmt` or `./pants lint`.",
         )
         register(
             "--args",
             type=list,
             member_type=shell_str,
-            help=(
-                "Arguments to pass directly to Shellcheck, e.g. `--shellcheck-args='-e SC20529'`.'"
-            ),
+            help=("Arguments to pass directly to shfmt, e.g. `--shfmt-args='-i 2'`.'"),
         )
         register(
             "--config",
             type=list,
             member_type=file_option,
             advanced=True,
-            help="Path to `.shellcheckrc`. This must be relative to the build root.",
+            help="Path to `.editorconfig` file. This must be relative to the build root.",
         )
 
     def generate_url(self, plat: Platform) -> str:
         plat_str = "linux" if plat == Platform.linux else "darwin"
         return (
-            f"https://github.com/koalaman/shellcheck/releases/download/{self.version}/"
-            f"shellcheck-{self.version}.{plat_str}.x86_64.tar.xz"
+            f"https://github.com/mvdan/sh/releases/download/{self.version}/"
+            f"shfmt_{self.version}_{plat_str}_amd64"
         )
 
-    def generate_exe(self, _: Platform) -> str:
-        return f"./shellcheck-{self.version}/shellcheck"
+    def generate_exe(self, plat: Platform) -> str:
+        plat_str = "linux" if plat == Platform.linux else "darwin"
+        return f"./shfmt_{self.version}_{plat_str}_amd64"
