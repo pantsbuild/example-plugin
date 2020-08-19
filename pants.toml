@@ -20,6 +20,7 @@ backend_packages = [
   # functionality in our repository.
   "examples.bash",
   "examples.bash.lint.shellcheck",
+  "examples.bash.lint.shfmt",
 ]
 
 [source]
