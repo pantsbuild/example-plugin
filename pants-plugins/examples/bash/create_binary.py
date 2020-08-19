@@ -26,6 +26,12 @@ class BashBinaryFieldSet(BinaryFieldSet):
 
 @rule(level=LogLevel.DEBUG)
 async def create_bash_binary(field_set: BashBinaryFieldSet) -> CreatedBinary:
+    # This `binary` implementation will simply create a `.zip` file with all the relevant files
+    # included. The user must then unzip the file and run the relevant file.
+    #
+    # A more robust `binary` implementation will create a single file that is runnable, such as a
+    # PEX file or JAR file.
+
     zip_program_paths = await Get(
         BinaryPaths,
         BinaryPathRequest(binary_name="zip", search_path=["/bin", "/usr/bin"]),
