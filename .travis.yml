@@ -20,3 +20,6 @@ install:
 script:
   - ./pants lint '::'
   - ./pants test '::'
+  # Smoke test that our `binary` implementation runs successfully.
+  - ./pants binary '::'
+

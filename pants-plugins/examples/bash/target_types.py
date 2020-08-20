@@ -7,9 +7,25 @@ from pants.engine.target import COMMON_TARGET_FIELDS, Dependencies, Sources, Tar
 
 
 class BashSources(Sources):
-    default = ("*.sh",)
+    # Normally, we would add `expected_file_extensions = ('.sh',)`, but Bash scripts don't need a
+    # file extension, so we don't use this.
+    pass
 
 
-class BashTarget(Target):
-    alias = "bash"
+class BashLibrary(Target):
+    """Bash util code that is not directly run."""
+
+    alias = "bash_library"
     core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashSources)
+
+
+class BashBinarySources(BashSources):
+    required = True
+    expected_num_files = 1
+
+
+class BashBinary(Target):
+    """A Bash file that may be directly run."""
+
+    alias = "bash_binary"
+    core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashBinarySources)

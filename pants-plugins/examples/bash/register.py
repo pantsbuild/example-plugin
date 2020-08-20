@@ -1,8 +1,13 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-from examples.bash.target_types import BashTarget
+from examples.bash import create_binary
+from examples.bash.target_types import BashBinary, BashLibrary
 
 
 def target_types():
-    return [BashTarget]
+    return [BashBinary, BashLibrary]
+
+
+def rules():
+    return [*create_binary.rules()]
