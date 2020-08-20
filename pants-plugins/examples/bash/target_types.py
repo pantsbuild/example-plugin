@@ -20,6 +20,7 @@ class BashLibrary(Target):
 
 
 class BashBinarySources(BashSources):
+    required = True
     expected_num_files = 1
 
 
