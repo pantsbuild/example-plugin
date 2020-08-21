@@ -20,6 +20,6 @@ install:
 script:
   - ./pants lint '::'
   - ./pants test '::'
-  # Smoke test that our `binary` implementation runs successfully.
+  # Smoke test that our `binary` and `run` implementations run successfully.
   - ./pants binary '::'
-
+  - ./pants run build-support/python/setup_venv.sh
