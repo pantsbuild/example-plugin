@@ -67,12 +67,12 @@ class BashProgram:
 
 
 @rule(desc="Find Bash", level=LogLevel.DEBUG)
-async def run_bash_binary() -> BashProgram:
+async def run_bash_binary(bash_setup: BashSetup) -> BashProgram:
     # We expect Bash to already be installed. See
     # https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools.
     bash_program_paths = await Get(
         BinaryPaths,
-        BinaryPathRequest(binary_name="bash", search_path=["/bin", "/usr/bin"]),
+        BinaryPathRequest(binary_name="bash", search_path=bash_setup.executable_search_path),
     )
     if not bash_program_paths.first_path:
         raise EnvironmentError(

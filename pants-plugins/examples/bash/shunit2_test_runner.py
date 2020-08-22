@@ -167,7 +167,7 @@ async def run_tests_with_shunit2(field_set: Shunit2FieldSet) -> TestResult:
 @rule(desc="Setup Shunit2 to run interactively", level=LogLevel.DEBUG)
 async def setup_shunit2_debug_test(field_set: Shunit2FieldSet) -> TestDebugRequest:
     setup = await Get(TestSetup, TestSetupRequest(field_set))
-    # We set up an InteractiveProcess, which will get run in the `@goal_rule` in `test.py`.
+    # We set up an InteractiveProcess, which will be executed in the `@goal_rule` in `test.py`.
     return TestDebugRequest(
         InteractiveProcess(
             argv=setup.process.argv,

@@ -66,7 +66,7 @@ async def setup_shfmt(setup_request: SetupRequest, shfmt: Shfmt) -> Setup:
 
     # If the user specified `--shfmt-config`, we must search for the file they specified with
     # `PathGlobs` to include it in the `input_digest`. We error if the file cannot be found.
-    # https://www.pantsbuild.org/v2.0/docs/rules-api-file-system.
+    # See https://www.pantsbuild.org/v2.0/docs/rules-api-file-system.
     config_digest_request = Get(
         Digest,
         PathGlobs(

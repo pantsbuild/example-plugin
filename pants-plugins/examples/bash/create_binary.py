@@ -22,6 +22,7 @@ from pants.engine.target import Dependencies, Sources, TransitiveTargets
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
+from examples.bash.bash_setup import BashSetup
 from examples.bash.target_types import BashBinarySources, BashSources
 
 
@@ -34,15 +35,16 @@ class BashBinaryFieldSet(BinaryFieldSet):
 
 
 @rule(level=LogLevel.DEBUG)
-async def create_bash_binary(field_set: BashBinaryFieldSet) -> CreatedBinary:
-    # We first locate the `zip` program using `BinaryPaths`. See
-    # https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools.
+async def create_bash_binary(field_set: BashBinaryFieldSet, bash_setup: BashSetup) -> CreatedBinary:
+    # We first locate the `zip` program using `BinaryPaths`. We use the option
+    # `--bash-executable-search-paths` to determine which paths to search, such as `/bin` and
+    # `/usr/bin`. See https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools.
     zip_program_paths = await Get(
         BinaryPaths,
-        BinaryPathRequest(binary_name="zip", search_path=["/bin", "/usr/bin"]),
+        BinaryPathRequest(binary_name="zip", search_path=bash_setup.executable_search_path),
     )
     if not zip_program_paths.first_path:
-        raise ValueError(
+        raise EnvironmentError(
             "Could not find the `zip` program on `/bin` or `/usr/bin`, so cannot create a binary "
             f"for {field_set.address}."
         )
