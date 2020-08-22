@@ -4,7 +4,6 @@
 from dataclasses import dataclass
 
 from pants.core.goals.binary import BinaryFieldSet, CreatedBinary
-from pants.core.goals.run import RunRequest
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
 from pants.engine.process import BinaryPathRequest, BinaryPaths, Process, ProcessResult
@@ -67,11 +66,6 @@ async def create_bash_binary(field_set: BashBinaryFieldSet) -> CreatedBinary:
         ),
     )
     return CreatedBinary(result.output_digest, binary_name=output_filename)
-
-
-@rule
-def run_bash_binary(_: BashBinaryFieldSet) -> RunRequest:
-    raise NotImplementedError("Run does not yet work on Bash targets.")
 
 
 def rules():
