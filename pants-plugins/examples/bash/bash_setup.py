@@ -72,7 +72,9 @@ async def run_bash_binary(bash_setup: BashSetup) -> BashProgram:
     # https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools.
     bash_program_paths = await Get(
         BinaryPaths,
-        BinaryPathRequest(binary_name="bash", search_path=bash_setup.executable_search_path),
+        BinaryPathRequest(
+            binary_name="bash", search_path=bash_setup.executable_search_path
+        ),
     )
     if not bash_program_paths.first_path:
         raise EnvironmentError(
