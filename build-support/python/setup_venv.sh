@@ -12,5 +12,7 @@ VIRTUALENV=build-support/python/.venv
 PIP="${VIRTUALENV}/bin/pip"
 
 "${PYTHON_BIN}" -m venv "${VIRTUALENV}"
+ls -A "${VIRTUALENV}"
+ls -A "${VIRTUALENV}"/bin
 "${PIP}" install pip --upgrade
 "${PIP}" install -r <(./pants dependencies --type=3rdparty ::)
