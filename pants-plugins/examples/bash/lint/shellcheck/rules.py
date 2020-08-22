@@ -1,7 +1,12 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-# Refer to https://www.pantsbuild.org/v2.0/docs/plugins-lint-goal.
+"""See https://www.pantsbuild.org/v2.0/docs/plugins-lint-goal.
+
+This plugin installs Shellcheck, finds the input file's direct
+dependencies so that they're included in the chroot, then runs
+Shellcheck on the input files.
+"""
 
 from dataclasses import dataclass
 
@@ -77,8 +82,9 @@ async def run_shellcheck(
         shellcheck.get_request(Platform.current),
     )
 
-    # If the user specified `--shellcheck-config`, we must search for the file they specified with
+    # If the user specified `--shellcheck-config`, we search for the file they specified with
     # `PathGlobs` to include it in the `input_digest`. We error if the file cannot be found.
+    # See https://www.pantsbuild.org/v2.0/docs/rules-api-file-system.
     config_digest_request = Get(
         Digest,
         PathGlobs(
@@ -92,7 +98,8 @@ async def run_shellcheck(
         sources_request, download_shellcheck_request, config_digest_request
     )
 
-    # The Process needs one single `Digest`, so we merge everything together.
+    # The Process needs one single `Digest`, so we merge everything together. See
+    # https://www.pantsbuild.org/v2.0/docs/rules-api-file-system.
     input_digest = await Get(
         Digest,
         MergeDigests(
@@ -100,6 +107,8 @@ async def run_shellcheck(
         ),
     )
 
+    # We use `FallibleProcessResult`, rather than `ProcessResult`, because we're okay with the
+    # Process failing.
     process_result = await Get(
         FallibleProcessResult,
         Process(

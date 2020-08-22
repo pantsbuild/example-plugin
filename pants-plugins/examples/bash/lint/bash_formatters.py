@@ -1,6 +1,13 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
+"""Setup for formatters for Bash.
+
+You need to have this file for each distinct "language", such as Python or Java. This allows Pants
+to group all relevant formatters together, such as all Bash formatters together and all Python
+formatters together. See https://www.pantsbuild.org/v2.0/docs/plugins-fmt-goal.
+"""
+
 from dataclasses import dataclass
 from typing import Iterable, List, Type
 

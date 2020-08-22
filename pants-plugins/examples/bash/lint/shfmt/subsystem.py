@@ -1,7 +1,12 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-# Refer to https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools.
+"""Options for the shfmt auto-formatter.
+
+We use `ExternalTool` so that we can easily install the pre-compiled binary. See
+https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools and
+https://www.pantsbuild.org/v2.0/docs/rules-api-subsystems.
+"""
 
 from pants.core.util_rules.external_tool import ExternalTool
 from pants.engine.platform import Platform
