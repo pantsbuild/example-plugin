@@ -5,6 +5,8 @@
 # This script is useful to set up a virtual environment so that IDEs understand the Python code.
 # See https://www.pantsbuild.org/docs/python-third-party-dependencies.
 
+set -x
+
 PYTHON_BIN=python3.6
 VIRTUALENV=build-support/python/.venv
 PIP="${VIRTUALENV}/bin/pip"
