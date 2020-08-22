@@ -49,8 +49,10 @@ async def create_bash_binary(
     )
     if not zip_program_paths.first_path:
         raise EnvironmentError(
-            "Could not find the `zip` program on `/bin` or `/usr/bin`, so cannot create a binary "
-            f"for {field_set.address}."
+            f"Could not find the `zip` program on search paths "
+            f"{list(bash_setup.executable_search_path)}, so cannot create a binary for "
+            f"{field_set.address}. Please check that `zip` iss installed and possibly modify the "
+            "option `executable_search_paths` in the `[bash-setup]` options scope."
         )
 
     # We need to include all relevant transitive dependencies in the zip. See

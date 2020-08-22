@@ -78,7 +78,10 @@ async def run_bash_binary(bash_setup: BashSetup) -> BashProgram:
     )
     if not bash_program_paths.first_path:
         raise EnvironmentError(
-            "Could not find the `bash` program on `/bin` or `/usr/bin`, so this plugin cannot work."
+            "Could not find the `bash` program on search paths "
+            f"{list(bash_setup.executable_search_path)}. Please check that `bash` is installed and "
+            "possibly modify the option `executable_search_paths` in the `[bash-setup]` options "
+            "scope."
         )
     return BashProgram(bash_program_paths.first_path)
 
