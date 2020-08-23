@@ -1,7 +1,13 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-# Refer to https://www.pantsbuild.org/v2.0/docs/plugins-fmt-goal.
+"""See https://www.pantsbuild.org/v2.0/docs/plugins-fmt-goal.
+
+This plugin installs shfmt, then runs it on the input files.
+
+It provides rules for both `lint` and `fmt` so that shfmt is used with both goals. To deduplicate,
+we have a common `Setup` type and a rule to set up shfmt.
+"""
 
 from dataclasses import dataclass
 
@@ -60,6 +66,7 @@ async def setup_shfmt(setup_request: SetupRequest, shfmt: Shfmt) -> Setup:
 
     # If the user specified `--shfmt-config`, we must search for the file they specified with
     # `PathGlobs` to include it in the `input_digest`. We error if the file cannot be found.
+    # See https://www.pantsbuild.org/v2.0/docs/rules-api-file-system.
     config_digest_request = Get(
         Digest,
         PathGlobs(
@@ -88,6 +95,8 @@ async def setup_shfmt(setup_request: SetupRequest, shfmt: Shfmt) -> Setup:
         else setup_request.request.prior_formatter_result
     )
 
+    # The Process needs one single `Digest`, so we merge everything together. See
+    # https://www.pantsbuild.org/v2.0/docs/rules-api-file-system.
     input_digest = await Get(
         Digest,
         MergeDigests(
@@ -127,6 +136,8 @@ async def shfmt_lint(request: ShfmtRequest, shfmt: Shfmt) -> LintResults:
     if shfmt.options.skip:
         return LintResults()
     setup = await Get(Setup, SetupRequest(request, check_only=True))
+    # We use `FallibleProcessResult`, rather than `ProcessResult`, because we're okay with the
+    # Process failing.
     result = await Get(FallibleProcessResult, Process, setup.process)
     return LintResults(
         [LintResult.from_fallible_process_result(result, linter_name="shfmt")]

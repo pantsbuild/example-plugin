@@ -1,7 +1,11 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-# Refer to https://www.pantsbuild.org/v2.0/docs/target-api-concepts.
+"""Defines our target types for Bash.
+
+See https://www.pantsbuild.org/v2.0/docs/target-api-concepts. This uses a common Pants pattern of
+having distinct `library`, `binary`, and `tests` target types.
+"""
 
 from pants.engine.target import COMMON_TARGET_FIELDS, Dependencies, Sources, Target
 
@@ -29,3 +33,20 @@ class BashBinary(Target):
 
     alias = "bash_binary"
     core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashBinarySources)
+
+
+class BashTestSources(BashSources):
+    default = ("*_test.sh", "test_*.sh")
+
+
+class BashTests(Target):
+    """Bash tests that are run via `shunit2`.
+
+    Refer to https://github.com/kward/shunit2. Pants will automatically
+    add `source `./shunit2` to the bottom of your test file if it is not
+    already there, and it will ensure that the script is available as a
+    sibling to your test file.
+    """
+
+    alias = "bash_tests"
+    core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashTestSources)
