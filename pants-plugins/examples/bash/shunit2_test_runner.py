@@ -6,11 +6,11 @@
 This plugin uses the Shunit2 test runner script (https://github.com/kward/shunit2). Because the
 test runner is a simple Bash script, we simply download the file to be able to run it. Shunit2
 requires that tests have "source ./shunit2" at the bottom of the tests; as a convenience, our
-plugin uses file system operations to automatically add that line to any test files missing it.
+plugin uses filesystem operations to automatically add that line to any test files missing it.
 After setting up the source files (including finding all relevant transitive dependencies), we run
 the equivalent of `bash test_file.sh`.
 
-We must implement rules for both normal `test` and `test --debug`. To deduplicate, we have a
+We must implement rules for both normal `test` and `test --debug`. To avoid duplication, we have a
 common `TestSetup` type and rule to set up the test.
 """
 
