@@ -18,7 +18,6 @@ install:
   - ./pants --version  # This will bootstrap Pants
 
 script:
-  - which -a zip
   - ./pants lint '::'
   - ./pants test '::'
   # Smoke test that our `binary` implementation runs successfully.
