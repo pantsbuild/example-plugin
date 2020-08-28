@@ -18,7 +18,7 @@ from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
 from pants.engine.process import BinaryPathRequest, BinaryPaths, Process, ProcessResult
 from pants.engine.rules import Get, collect_rules, rule
-from pants.engine.target import Dependencies, Sources, TransitiveTargets
+from pants.engine.target import Sources, TransitiveTargets
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
@@ -31,7 +31,6 @@ class BashBinaryFieldSet(BinaryFieldSet):
     required_fields = (BashBinarySources,)
 
     sources: BashBinarySources
-    dependencies: Dependencies
 
 
 @rule(level=LogLevel.DEBUG)

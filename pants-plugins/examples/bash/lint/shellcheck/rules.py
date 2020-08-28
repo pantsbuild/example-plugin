@@ -48,7 +48,7 @@ async def run_shellcheck(
     request: ShellcheckRequest, shellcheck: Shellcheck
 ) -> LintResults:
     if shellcheck.options.skip:
-        return LintResults()
+        return LintResults([], linter_name="Shellcheck")
 
     # Shellcheck looks at direct dependencies to make sure that every symbol is defined, so we must
     # include those in the run.
@@ -122,10 +122,8 @@ async def run_shellcheck(
             level=LogLevel.DEBUG,
         ),
     )
-    result = LintResult.from_fallible_process_result(
-        process_result, linter_name="Shellcheck"
-    )
-    return LintResults([result])
+    result = LintResult.from_fallible_process_result(process_result)
+    return LintResults([result], linter_name="Shellcheck")
 
 
 def rules():

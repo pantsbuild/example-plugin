@@ -171,7 +171,7 @@ async def setup_shunit2_debug_test(field_set: Shunit2FieldSet) -> TestDebugReque
     return TestDebugRequest(
         InteractiveProcess(
             argv=setup.process.argv,
-            # env=setup.process.env,
+            env=setup.process.env,
             input_digest=setup.process.input_digest,
         ),
     )

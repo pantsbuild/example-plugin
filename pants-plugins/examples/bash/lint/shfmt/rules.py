@@ -123,7 +123,7 @@ async def setup_shfmt(setup_request: SetupRequest, shfmt: Shfmt) -> Setup:
 @rule(desc="Format with shfmt", level=LogLevel.DEBUG)
 async def shfmt_fmt(request: ShfmtRequest, shfmt: Shfmt) -> FmtResult:
     if shfmt.options.skip:
-        return FmtResult.noop()
+        return FmtResult.skip(formatter_name="shfmt")
     setup = await Get(Setup, SetupRequest(request, check_only=False))
     result = await Get(ProcessResult, Process, setup.process)
     return FmtResult.from_process_result(
@@ -134,13 +134,13 @@ async def shfmt_fmt(request: ShfmtRequest, shfmt: Shfmt) -> FmtResult:
 @rule(desc="Lint with shfmt", level=LogLevel.DEBUG)
 async def shfmt_lint(request: ShfmtRequest, shfmt: Shfmt) -> LintResults:
     if shfmt.options.skip:
-        return LintResults()
+        return LintResults([], linter_name="shfmt")
     setup = await Get(Setup, SetupRequest(request, check_only=True))
     # We use `FallibleProcessResult`, rather than `ProcessResult`, because we're okay with the
     # Process failing.
     result = await Get(FallibleProcessResult, Process, setup.process)
     return LintResults(
-        [LintResult.from_fallible_process_result(result, linter_name="shfmt")]
+        [LintResult.from_fallible_process_result(result)], linter_name="shfmt"
     )
 
 
