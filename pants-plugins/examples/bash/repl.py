@@ -6,6 +6,9 @@
 This plugin sets up a very minimal REPL that populates the chroot with
 the input targets and their dependencies, and then runs the equivalent
 of `bash`.
+
+TODO(#13): This implementation results in a warning `Inappropriate ioctl for device` due to the
+TTY not being set up properly.
 """
 
 from dataclasses import dataclass
