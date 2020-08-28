@@ -50,7 +50,7 @@ async def create_bash_binary(
         raise EnvironmentError(
             f"Could not find the `zip` program on search paths "
             f"{list(bash_setup.executable_search_path)}, so cannot create a binary for "
-            f"{field_set.address}. Please check that `zip` iss installed and possibly modify the "
+            f"{field_set.address}. Please check that `zip` is installed and possibly modify the "
             "option `executable_search_paths` in the `[bash-setup]` options scope."
         )
 
