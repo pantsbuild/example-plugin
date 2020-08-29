@@ -8,6 +8,8 @@ dependencies for the binary target, then runs the equivalent of `bash
 my_script.sh`.
 """
 
+import os
+
 from pants.core.goals.run import RunRequest
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
@@ -42,9 +44,12 @@ async def run_bash_binary(
         binary_sources_request, all_sources_request
     )
 
+    # We join the relative path to our program with the template string "{chroot}", which will get
+    # substituted with the path to the temporary directory where our program runs. This ensures
+    # that we run the correct file.
     # Note that `BashBinarySources` will have already validated that there is exactly one file in
     # the sources field.
-    script_name = binary_sources.files[0]
+    script_name = os.path.join("{chroot}", binary_sources.files[0])
 
     return RunRequest(
         digest=all_sources.snapshot.digest,
