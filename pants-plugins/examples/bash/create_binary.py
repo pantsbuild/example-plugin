@@ -18,7 +18,7 @@ from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
 from pants.engine.process import BinaryPathRequest, BinaryPaths, Process, ProcessResult
 from pants.engine.rules import Get, collect_rules, rule
-from pants.engine.target import Dependencies, Sources, TransitiveTargets
+from pants.engine.target import Sources, TransitiveTargets
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
@@ -31,7 +31,6 @@ class BashBinaryFieldSet(BinaryFieldSet):
     required_fields = (BashBinarySources,)
 
     sources: BashBinarySources
-    dependencies: Dependencies
 
 
 @rule(level=LogLevel.DEBUG)
@@ -51,7 +50,7 @@ async def create_bash_binary(
         raise EnvironmentError(
             f"Could not find the `zip` program on search paths "
             f"{list(bash_setup.executable_search_path)}, so cannot create a binary for "
-            f"{field_set.address}. Please check that `zip` iss installed and possibly modify the "
+            f"{field_set.address}. Please check that `zip` is installed and possibly modify the "
             "option `executable_search_paths` in the `[bash-setup]` options scope."
         )
 

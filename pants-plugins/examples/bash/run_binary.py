@@ -9,23 +9,31 @@ my_script.sh`.
 """
 
 import os
+from dataclasses import dataclass
 
-from pants.core.goals.run import RunRequest
+from pants.core.goals.run import RunFieldSet, RunRequest
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
 from pants.engine.rules import Get, MultiGet, collect_rules, rule
 from pants.engine.target import Sources, TransitiveTargets
+from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
 from examples.bash.bash_setup import BashProgram, BashSetup
-from examples.bash.create_binary import BashBinaryFieldSet
-from examples.bash.target_types import BashSources
+from examples.bash.target_types import BashBinarySources, BashSources
+
+
+@dataclass(frozen=True)
+class BashRunFieldSet(RunFieldSet):
+    required_fields = (BashBinarySources,)
+
+    sources: BashBinarySources
 
 
 @rule(level=LogLevel.DEBUG)
 async def run_bash_binary(
-    field_set: BashBinaryFieldSet, bash_program: BashProgram, bash_setup: BashSetup
+    field_set: BashRunFieldSet, bash_program: BashProgram, bash_setup: BashSetup
 ) -> RunRequest:
     transitive_targets = await Get(TransitiveTargets, Addresses([field_set.address]))
 
@@ -59,4 +67,4 @@ async def run_bash_binary(
 
 
 def rules():
-    return collect_rules()
+    return (*collect_rules(), UnionRule(RunFieldSet, BashRunFieldSet))
