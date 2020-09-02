@@ -62,7 +62,7 @@ async def run_bash_binary(
     return RunRequest(
         digest=all_sources.snapshot.digest,
         args=[bash_program.exe, script_name],
-        env=bash_setup.env_dict,
+        extra_env=bash_setup.env_dict,
     )
 
 

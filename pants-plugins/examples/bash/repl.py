@@ -52,7 +52,7 @@ async def create_bash_repl_request(
     return ReplRequest(
         digest=sources.snapshot.digest,
         args=(bash_program.exe,),
-        env=bash_setup.env_dict,
+        extra_env=bash_setup.env_dict,
     )
 
 
