@@ -15,8 +15,14 @@ common `TestSetup` type and rule to set up the test.
 """
 
 from dataclasses import dataclass
+from uuid import UUID
 
-from pants.core.goals.test import TestDebugRequest, TestFieldSet, TestResult
+from pants.core.goals.test import (
+    TestDebugRequest,
+    TestFieldSet,
+    TestResult,
+    TestSubsystem,
+)
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
@@ -28,14 +34,15 @@ from pants.engine.fs import (
     FileContent,
     MergeDigests,
 )
+from pants.engine.internals.uuid import UUIDRequest
 from pants.engine.process import FallibleProcessResult, InteractiveProcess, Process
 from pants.engine.rules import Get, MultiGet, collect_rules, rule
-from pants.engine.target import Dependencies, Sources, TransitiveTargets
+from pants.engine.target import Sources, TransitiveTargets
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
 from examples.bash.bash_setup import BashProgram, BashSetup
-from examples.bash.target_types import BashSources, BashTestSources
+from examples.bash.target_types import BashSources, BashTestSources, BashTestTimeout
 
 
 @dataclass(frozen=True)
@@ -43,12 +50,13 @@ class Shunit2FieldSet(TestFieldSet):
     required_fields = (BashTestSources,)
 
     sources: BashTestSources
-    dependencies: Dependencies
+    timeout: BashTestTimeout
 
 
 @dataclass(frozen=True)
 class TestSetupRequest:
     field_set: Shunit2FieldSet
+    is_debug: bool
 
 
 @dataclass(frozen=True)
@@ -58,7 +66,10 @@ class TestSetup:
 
 @rule(level=LogLevel.DEBUG)
 async def setup_shunit2_for_target(
-    request: TestSetupRequest, bash_program: BashProgram, bash_setup: BashSetup
+    request: TestSetupRequest,
+    bash_program: BashProgram,
+    bash_setup: BashSetup,
+    test_subsystem: TestSubsystem,
 ) -> TestSetup:
     # Because shunit2 is a simple Bash file, we download it using `DownloadFile`. Normally, we
     # would install the test runner through `ExternalTool`. See
@@ -145,28 +156,36 @@ async def setup_shunit2_for_target(
         ),
     )
 
+    # We must check if `test --force` was used, and if so, use a hack to invalidate the cache by
+    # mixing in a randomly generated UUID into the environment.
+    extra_env = {}
+    if test_subsystem.force and not request.is_debug:
+        uuid = await Get(UUID, UUIDRequest())
+        extra_env["__PANTS_FORCE_TEST_RUN__"] = str(uuid)
+
     process = Process(
         argv=[bash_program.exe, *test_source_files.snapshot.files],
         input_digest=input_digest,
         description=f"Run shunit2 on {request.field_set.address}.",
         level=LogLevel.DEBUG,
         env=bash_setup.env_dict,
+        timeout_seconds=request.field_set.timeout.value,
     )
     return TestSetup(process)
 
 
 @rule(desc="Run tests with Shunit2", level=LogLevel.DEBUG)
 async def run_tests_with_shunit2(field_set: Shunit2FieldSet) -> TestResult:
-    setup = await Get(TestSetup, TestSetupRequest(field_set))
+    setup = await Get(TestSetup, TestSetupRequest(field_set, is_debug=False))
     # We use `FallibleProcessResult`, rather than `ProcessResult`, because we're okay with the
     # Process failing.
     result = await Get(FallibleProcessResult, Process, setup.process)
-    return TestResult.from_fallible_process_result(result)
+    return TestResult.from_fallible_process_result(result, address=field_set.address)
 
 
 @rule(desc="Setup Shunit2 to run interactively", level=LogLevel.DEBUG)
 async def setup_shunit2_debug_test(field_set: Shunit2FieldSet) -> TestDebugRequest:
-    setup = await Get(TestSetup, TestSetupRequest(field_set))
+    setup = await Get(TestSetup, TestSetupRequest(field_set, is_debug=True))
     # We set up an InteractiveProcess, which will be executed in the `@goal_rule` in `test.py`.
     return TestDebugRequest(
         InteractiveProcess(
