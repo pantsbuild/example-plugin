@@ -7,7 +7,13 @@ See https://www.pantsbuild.org/v2.0/docs/target-api-concepts. This uses a common
 having distinct `library`, `binary`, and `tests` target types.
 """
 
-from pants.engine.target import COMMON_TARGET_FIELDS, Dependencies, Sources, Target
+from pants.engine.target import (
+    COMMON_TARGET_FIELDS,
+    Dependencies,
+    IntField,
+    Sources,
+    Target,
+)
 
 
 class BashSources(Sources):
@@ -39,6 +45,15 @@ class BashTestSources(BashSources):
     default = ("*_test.sh", "test_*.sh")
 
 
+class BashTestTimeout(IntField):
+    """Whether to time out after a certain amount of time.
+
+    If unset, the test will never time out.
+    """
+
+    alias = "timeout"
+
+
 class BashTests(Target):
     """Bash tests that are run via `shunit2`.
 
@@ -49,4 +64,9 @@ class BashTests(Target):
     """
 
     alias = "bash_tests"
-    core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashTestSources)
+    core_fields = (
+        *COMMON_TARGET_FIELDS,
+        Dependencies,
+        BashTestSources,
+        BashTestTimeout,
+    )
