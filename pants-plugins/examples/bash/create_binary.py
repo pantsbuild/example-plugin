@@ -67,7 +67,8 @@ async def create_bash_binary(
     )
 
     output_filename = os.path.join(
-        field_set.address.spec_path.replace(os.sep, "."), f"{field_set.address.target_name}.zip"
+        field_set.address.spec_path.replace(os.sep, "."),
+        f"{field_set.address.target_name}.zip",
     )
     result = await Get(
         ProcessResult,
