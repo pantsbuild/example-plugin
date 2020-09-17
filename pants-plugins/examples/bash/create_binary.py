@@ -17,7 +17,13 @@ from pants.core.goals.binary import BinaryFieldSet, CreatedBinary
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
-from pants.engine.process import BinaryPathRequest, BinaryPaths, Process, ProcessResult
+from pants.engine.process import (
+    BinaryPathRequest,
+    BinaryPaths,
+    BinaryPathTest,
+    Process,
+    ProcessResult,
+)
 from pants.engine.rules import Get, collect_rules, rule
 from pants.engine.target import Sources, TransitiveTargets
 from pants.engine.unions import UnionRule
@@ -44,7 +50,11 @@ async def create_bash_binary(
     zip_program_paths = await Get(
         BinaryPaths,
         BinaryPathRequest(
-            binary_name="zip", search_path=bash_setup.executable_search_path
+            binary_name="zip",
+            search_path=bash_setup.executable_search_path,
+            # This will run `zip --version` to ensure it's a valid binary and to allow
+            # invalidating the cache if the version changes.
+            test=BinaryPathTest(args=["-v"]),
         ),
     )
     if not zip_program_paths.first_path:

@@ -8,7 +8,7 @@ import os
 from dataclasses import dataclass
 from typing import Tuple
 
-from pants.engine.process import BinaryPathRequest, BinaryPaths
+from pants.engine.process import BinaryPathRequest, BinaryPaths, BinaryPathTest
 from pants.engine.rules import Get, collect_rules, rule
 from pants.option.subsystem import Subsystem
 from pants.util.frozendict import FrozenDict
@@ -73,7 +73,11 @@ async def run_bash_binary(bash_setup: BashSetup) -> BashProgram:
     bash_program_paths = await Get(
         BinaryPaths,
         BinaryPathRequest(
-            binary_name="bash", search_path=bash_setup.executable_search_path
+            binary_name="bash",
+            search_path=bash_setup.executable_search_path,
+            # This will run `bash --version` to ensure it's a valid binary and to allow
+            # invalidating the cache if the version changes.
+            test=BinaryPathTest(args=["--version"]),
         ),
     )
     if not bash_program_paths.first_path:
