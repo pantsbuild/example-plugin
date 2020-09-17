@@ -83,7 +83,7 @@ async def run_bash_binary(bash_setup: BashSetup) -> BashProgram:
             "possibly modify the option `executable_search_paths` in the `[bash-setup]` options "
             "scope."
         )
-    return BashProgram(bash_program_paths.first_path)
+    return BashProgram(bash_program_paths.first_path.path)
 
 
 def rules():

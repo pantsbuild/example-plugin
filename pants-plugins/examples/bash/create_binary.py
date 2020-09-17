@@ -10,6 +10,7 @@ A more robust `binary` implementation will create a single file that is runnable
 PEX file or JAR file.
 """
 
+import os
 from dataclasses import dataclass
 
 from pants.core.goals.binary import BinaryFieldSet, CreatedBinary
@@ -65,12 +66,14 @@ async def create_bash_binary(
         ),
     )
 
-    output_filename = f"{field_set.address.target_name}.zip"
+    output_filename = os.path.join(
+        field_set.address.spec_path.replace(os.sep, "."), f"{field_set.address.target_name}.zip"
+    )
     result = await Get(
         ProcessResult,
         Process(
             argv=(
-                zip_program_paths.first_path,
+                zip_program_paths.first_path.path,
                 output_filename,
                 *sources.snapshot.files,
             ),

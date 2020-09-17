@@ -21,5 +21,4 @@ script:
   - ./pants lint '::'
   - ./pants test '::'
   # Smoke test that our `binary` implementation runs successfully.
-  # TODO: fixed by https://github.com/pantsbuild/pants/pull/10710.
-  # - ./pants binary '::'
+  - ./pants binary '::'
