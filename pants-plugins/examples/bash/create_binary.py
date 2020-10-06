@@ -1,19 +1,18 @@
 # Copyright 2020 Pants project contributors.
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
-"""See https://www.pantsbuild.org/v2.0/docs/plugins-binary-goal.
+"""See https://www.pantsbuild.org/v2.0/docs/plugins-package-goal.
 
 This plugin will simply create a `.zip` file with all the relevant files included. The user must
 then unzip the file and run the relevant file.
 
-A more robust `binary` implementation will create a single file that is runnable, such as a
-PEX file or JAR file.
+This duplicates the `archive` target type and is only used for instructional purposes.
 """
 
 import os
 from dataclasses import dataclass
 
-from pants.core.goals.binary import BinaryFieldSet, CreatedBinary
+from pants.core.goals.package import BuiltPackage, PackageFieldSet
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.addresses import Addresses
@@ -34,7 +33,7 @@ from examples.bash.target_types import BashBinarySources, BashSources
 
 
 @dataclass(frozen=True)
-class BashBinaryFieldSet(BinaryFieldSet):
+class BashBinaryFieldSet(PackageFieldSet):
     required_fields = (BashBinarySources,)
 
     sources: BashBinarySources
@@ -43,7 +42,7 @@ class BashBinaryFieldSet(BinaryFieldSet):
 @rule(level=LogLevel.DEBUG)
 async def create_bash_binary(
     field_set: BashBinaryFieldSet, bash_setup: BashSetup
-) -> CreatedBinary:
+) -> BuiltPackage:
     # We first locate the `zip` program using `BinaryPaths`. We use the option
     # `--bash-executable-search-paths` to determine which paths to search, such as `/bin` and
     # `/usr/bin`. See https://www.pantsbuild.org/v2.0/docs/rules-api-installing-tools.
@@ -93,8 +92,8 @@ async def create_bash_binary(
             output_files=(output_filename,),
         ),
     )
-    return CreatedBinary(result.output_digest, binary_name=output_filename)
+    return BuiltPackage(result.output_digest, relpath=output_filename)
 
 
 def rules():
-    return (*collect_rules(), UnionRule(BinaryFieldSet, BashBinaryFieldSet))
+    return (*collect_rules(), UnionRule(PackageFieldSet, BashBinaryFieldSet))
