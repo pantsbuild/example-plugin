@@ -25,7 +25,6 @@ from pants.core.goals.test import (
 )
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
-from pants.engine.addresses import Addresses
 from pants.engine.fs import (
     CreateDigest,
     Digest,
@@ -37,7 +36,7 @@ from pants.engine.fs import (
 from pants.engine.internals.uuid import UUIDRequest
 from pants.engine.process import FallibleProcessResult, InteractiveProcess, Process
 from pants.engine.rules import Get, MultiGet, collect_rules, rule
-from pants.engine.target import Sources, TransitiveTargets
+from pants.engine.target import Sources, TransitiveTargets, TransitiveTargetsRequest
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
@@ -87,7 +86,7 @@ async def setup_shunit2_for_target(
     )
 
     transitive_targets_request = Get(
-        TransitiveTargets, Addresses([request.field_set.address])
+        TransitiveTargets, TransitiveTargetsRequest([request.field_set.address])
     )
 
     shunit2_script, transitive_targets = await MultiGet(

@@ -9,13 +9,11 @@ then unzip the file and run the relevant file.
 This duplicates the `archive` target type and is only used for instructional purposes.
 """
 
-import os
 from dataclasses import dataclass
 
-from pants.core.goals.package import BuiltPackage, PackageFieldSet
+from pants.core.goals.package import BuiltPackage, OutputPathField, PackageFieldSet
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
-from pants.engine.addresses import Addresses
 from pants.engine.process import (
     BinaryPathRequest,
     BinaryPaths,
@@ -24,7 +22,7 @@ from pants.engine.process import (
     ProcessResult,
 )
 from pants.engine.rules import Get, collect_rules, rule
-from pants.engine.target import Sources, TransitiveTargets
+from pants.engine.target import Sources, TransitiveTargets, TransitiveTargetsRequest
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
@@ -37,10 +35,11 @@ class BashBinaryFieldSet(PackageFieldSet):
     required_fields = (BashBinarySources,)
 
     sources: BashBinarySources
+    output_path: OutputPathField
 
 
 @rule(level=LogLevel.DEBUG)
-async def create_bash_binary(
+async def package_bash_binary(
     field_set: BashBinaryFieldSet, bash_setup: BashSetup
 ) -> BuiltPackage:
     # We first locate the `zip` program using `BinaryPaths`. We use the option
@@ -66,7 +65,9 @@ async def create_bash_binary(
 
     # We need to include all relevant transitive dependencies in the zip. See
     # https://www.pantsbuild.org/v2.0/docs/rules-api-and-target-api.
-    transitive_targets = await Get(TransitiveTargets, Addresses([field_set.address]))
+    transitive_targets = await Get(
+        TransitiveTargets, TransitiveTargetsRequest([field_set.address])
+    )
     sources = await Get(
         SourceFiles,
         SourceFilesRequest(
@@ -75,9 +76,8 @@ async def create_bash_binary(
         ),
     )
 
-    output_filename = os.path.join(
-        field_set.address.spec_path.replace(os.sep, "."),
-        f"{field_set.address.target_name}.zip",
+    output_filename = field_set.output_path.value_or_default(
+        field_set.address, file_ending="zip", use_legacy_format=False
     )
     result = await Get(
         ProcessResult,

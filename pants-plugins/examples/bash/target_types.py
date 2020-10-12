@@ -7,6 +7,7 @@ See https://www.pantsbuild.org/v2.0/docs/target-api-concepts. This uses a common
 having distinct `library`, `binary`, and `tests` target types.
 """
 
+from pants.core.goals.package import OutputPathField
 from pants.engine.target import (
     COMMON_TARGET_FIELDS,
     Dependencies,
@@ -38,7 +39,7 @@ class BashBinary(Target):
     """A Bash file that may be directly run."""
 
     alias = "bash_binary"
-    core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashBinarySources)
+    core_fields = (*COMMON_TARGET_FIELDS, OutputPathField, Dependencies, BashBinarySources)
 
 
 class BashTestSources(BashSources):
