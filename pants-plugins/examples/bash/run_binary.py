@@ -14,9 +14,8 @@ from dataclasses import dataclass
 from pants.core.goals.run import RunFieldSet, RunRequest
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
-from pants.engine.addresses import Addresses
 from pants.engine.rules import Get, MultiGet, collect_rules, rule
-from pants.engine.target import Sources, TransitiveTargets
+from pants.engine.target import Sources, TransitiveTargets, TransitiveTargetsRequest
 from pants.engine.unions import UnionRule
 from pants.util.logging import LogLevel
 
@@ -35,7 +34,9 @@ class BashRunFieldSet(RunFieldSet):
 async def run_bash_binary(
     field_set: BashRunFieldSet, bash_program: BashProgram, bash_setup: BashSetup
 ) -> RunRequest:
-    transitive_targets = await Get(TransitiveTargets, Addresses([field_set.address]))
+    transitive_targets = await Get(
+        TransitiveTargets, TransitiveTargetsRequest([field_set.address])
+    )
 
     # We need to include all relevant transitive dependencies in the environment. We also get the
     # binary's sources so that we know the script name. See

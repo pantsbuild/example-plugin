@@ -8,7 +8,7 @@ See https://www.pantsbuild.org/v2.0/docs/plugins-overview.
 
 from examples.bash import (
     bash_setup,
-    create_binary,
+    package_bash_binary,
     repl,
     run_binary,
     shunit2_test_runner,
@@ -23,7 +23,7 @@ def target_types():
 def rules():
     return [
         *bash_setup.rules(),
-        *create_binary.rules(),
+        *package_bash_binary.rules(),
         *repl.rules(),
         *run_binary.rules(),
         *shunit2_test_runner.rules(),
