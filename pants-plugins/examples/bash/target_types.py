@@ -39,7 +39,12 @@ class BashBinary(Target):
     """A Bash file that may be directly run."""
 
     alias = "bash_binary"
-    core_fields = (*COMMON_TARGET_FIELDS, OutputPathField, Dependencies, BashBinarySources)
+    core_fields = (
+        *COMMON_TARGET_FIELDS,
+        OutputPathField,
+        Dependencies,
+        BashBinarySources,
+    )
 
 
 class BashTestSources(BashSources):
