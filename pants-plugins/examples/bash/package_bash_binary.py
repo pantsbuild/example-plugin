@@ -11,7 +11,12 @@ This duplicates the `archive` target type and is only used for instructional pur
 
 from dataclasses import dataclass
 
-from pants.core.goals.package import BuiltPackage, OutputPathField, PackageFieldSet
+from pants.core.goals.package import (
+    BuiltPackage,
+    BuiltPackageArtifact,
+    OutputPathField,
+    PackageFieldSet,
+)
 from pants.core.target_types import FilesSources, ResourcesSources
 from pants.core.util_rules.source_files import SourceFiles, SourceFilesRequest
 from pants.engine.process import (
@@ -92,7 +97,9 @@ async def package_bash_binary(
             output_files=(output_filename,),
         ),
     )
-    return BuiltPackage(result.output_digest, relpath=output_filename)
+    return BuiltPackage(
+        result.output_digest, artifacts=(BuiltPackageArtifact(output_filename),)
+    )
 
 
 def rules():
