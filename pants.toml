@@ -2,7 +2,7 @@
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 [GLOBAL]
-pants_version = "2.0.0"
+pants_version = "2.1.0"
 print_stacktrace = true
 
 # This allows us to activate our plugin from first-party sources, rather than using a published
