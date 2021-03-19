@@ -2,7 +2,7 @@
 # Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 [GLOBAL]
-pants_version = "2.2.1"
+pants_version = "2.3.0"
 print_stacktrace = true
 
 # This allows us to activate our plugin from first-party sources, rather than using a published
@@ -34,6 +34,8 @@ root_patterns = [
 # `./pants` script's `determine_default_python_exe` function to make sure that Pants runs with that
 # Python version.
 interpreter_constraints = ["==3.7.*"]
+# Use the new default pip resolver.
+resolver_version = "pip-2020-resolver"
 
 [flake8]
 config = "build-support/python/flake8.ini"
