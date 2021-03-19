@@ -5,10 +5,10 @@
 # This script is useful to set up a virtual environment so that IDEs understand the Python code.
 # See https://www.pantsbuild.org/docs/python-third-party-dependencies.
 
-PYTHON_BIN=python3.6
+PYTHON_BIN=python3.7
 VIRTUALENV=build-support/python/.venv
 PIP="${VIRTUALENV}/bin/pip"
 
 "${PYTHON_BIN}" -m venv "${VIRTUALENV}"
 "${PIP}" install pip --upgrade
-"${PIP}" install -r <(./pants dependencies --type=3rdparty ::)
+"${PIP}" install -r <(./pants --concurrent dependencies --type=3rdparty ::)

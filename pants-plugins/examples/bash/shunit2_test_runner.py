@@ -15,7 +15,6 @@ common `TestSetup` type and rule to set up the test.
 """
 
 from dataclasses import dataclass
-from uuid import UUID
 
 from pants.core.goals.test import (
     TestDebugRequest,
@@ -33,8 +32,12 @@ from pants.engine.fs import (
     FileContent,
     MergeDigests,
 )
-from pants.engine.internals.uuid import UUIDRequest
-from pants.engine.process import FallibleProcessResult, InteractiveProcess, Process
+from pants.engine.process import (
+    FallibleProcessResult,
+    InteractiveProcess,
+    Process,
+    ProcessCacheScope,
+)
 from pants.engine.rules import Get, MultiGet, collect_rules, rule
 from pants.engine.target import Sources, TransitiveTargets, TransitiveTargetsRequest
 from pants.engine.unions import UnionRule
@@ -155,12 +158,12 @@ async def setup_shunit2_for_target(
         ),
     )
 
-    # We must check if `test --force` was used, and if so, use a hack to invalidate the cache by
-    # mixing in a randomly generated UUID into the environment.
-    extra_env = {}
-    if test_subsystem.force and not request.is_debug:
-        uuid = await Get(UUID, UUIDRequest())
-        extra_env["__PANTS_FORCE_TEST_RUN__"] = str(uuid)
+    # Cache test runs only if they are successful, or not at all if `--test-force`.
+    cache_scope = (
+        ProcessCacheScope.NEVER
+        if test_subsystem.force
+        else ProcessCacheScope.SUCCESSFUL
+    )
 
     process = Process(
         argv=[bash_program.exe, *test_source_files.snapshot.files],
@@ -169,6 +172,7 @@ async def setup_shunit2_for_target(
         level=LogLevel.DEBUG,
         env=bash_setup.env_dict,
         timeout_seconds=request.field_set.timeout.value,
+        cache_scope=cache_scope,
     )
     return TestSetup(process)
 
