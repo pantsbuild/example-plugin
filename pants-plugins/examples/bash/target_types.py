@@ -24,10 +24,9 @@ class BashSources(Sources):
 
 
 class BashLibrary(Target):
-    """Bash util code that is not directly run."""
-
     alias = "bash_library"
     core_fields = (*COMMON_TARGET_FIELDS, Dependencies, BashSources)
+    help = """Bash util code that is not directly run."""
 
 
 class BashBinarySources(BashSources):
@@ -36,8 +35,6 @@ class BashBinarySources(BashSources):
 
 
 class BashBinary(Target):
-    """A Bash file that may be directly run."""
-
     alias = "bash_binary"
     core_fields = (
         *COMMON_TARGET_FIELDS,
@@ -45,6 +42,7 @@ class BashBinary(Target):
         Dependencies,
         BashBinarySources,
     )
+    help = """A Bash file that may be directly run."""
 
 
 class BashTestSources(BashSources):
@@ -61,13 +59,6 @@ class BashTestTimeout(IntField):
 
 
 class BashTests(Target):
-    """Bash tests that are run via `shunit2`.
-
-    Refer to https://github.com/kward/shunit2. Pants will automatically
-    add `source `./shunit2` to the bottom of your test file if it is not
-    already there, and it will ensure that the script is available as a
-    sibling to your test file.
-    """
 
     alias = "bash_tests"
     core_fields = (
@@ -76,3 +67,10 @@ class BashTests(Target):
         BashTestSources,
         BashTestTimeout,
     )
+    help = """Bash tests that are run via `shunit2`.
+
+    Refer to https://github.com/kward/shunit2. Pants will automatically
+    add `source `./shunit2` to the bottom of your test file if it is not
+    already there, and it will ensure that the script is available as a
+    sibling to your test file.
+    """

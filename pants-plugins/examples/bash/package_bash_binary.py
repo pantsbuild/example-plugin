@@ -82,7 +82,7 @@ async def package_bash_binary(
     )
 
     output_filename = field_set.output_path.value_or_default(
-        field_set.address, file_ending="zip", use_legacy_format=False
+        field_set.address, file_ending="zip"
     )
     result = await Get(
         ProcessResult,
