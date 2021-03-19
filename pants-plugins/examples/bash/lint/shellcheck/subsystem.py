@@ -14,9 +14,8 @@ from pants.option.custom_types import file_option, shell_str
 
 
 class Shellcheck(ExternalTool):
-    """A linter for shell scripts."""
-
     options_scope = "shellcheck"
+    help = """A linter for shell scripts."""
     default_version = "v0.7.1"
     default_known_versions = [
         "v0.7.1|darwin|b080c3b659f7286e27004aa33759664d91e15ef2498ac709a452445d47e3ac23|1348272",

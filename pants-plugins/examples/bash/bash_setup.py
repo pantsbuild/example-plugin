@@ -19,9 +19,8 @@ from pants.util.strutil import create_path_env_var
 
 # See https://www.pantsbuild.org/v2.0/docs/rules-api-subsystems.
 class BashSetup(Subsystem):
-    """Common setup for the Bash plugin."""
-
     options_scope = "bash-setup"
+    help = """Common setup for the Bash plugin."""
 
     @classmethod
     def register_options(cls, register):

@@ -14,9 +14,9 @@ from pants.option.custom_types import file_option, shell_str
 
 
 class Shfmt(ExternalTool):
-    """An autoformatter for shell scripts (https://github.com/mvdan/sh)."""
 
     options_scope = "shfmt"
+    help = """An autoformatter for shell scripts (https://github.com/mvdan/sh)."""
     default_version = "v3.1.2"
     default_known_versions = [
         "v3.1.2|darwin|284674897e4f708a8b2e4b549af60ac01da648b9581dc7510c586ce41096edaa|3277184",
